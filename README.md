@@ -59,11 +59,23 @@ Hybrid is the matched control for release: the same targets and the same `J`, wi
 
 ## Why recall stays near one half
 
-`RESIDUAL_PERCENTILE = 75` and the 50-step persistence cap limit recall to about 0.5–0.6 by construction. Ranking average precision can still be 1.0.
+The recall ceiling is `RESIDUAL_PERCENTILE = 75`. On seeds 42–47 the 50-step persistence cap leaves recall unchanged.
 
-Calibration averages the residual over 400 steps while every coordinate is coupled. The threshold is the 75th percentile of that 64-vector. The 32 agreeing coordinates sit near residual zero and the 32 masked coordinates sit above them, so the 75th percentile lands inside the masked group. Over the next 400 steps a coordinate is released only when its instantaneous residual stays above the threshold, by more than `RESIDUAL_FLOOR` (`1e-12`), for 50 consecutive steps. The cooler masked coordinates do not qualify.
+Calibration averages the residual over 400 steps with every coordinate coupled. The threshold is a percentile of those 64 means. Agreeing means are exactly 0 and masked means are positive, so the 75th percentile falls inside the masked group. The measured run compares the instantaneous residual with that threshold. Near equilibrium the instantaneous value sits above the calibration mean, so a few masked coordinates whose calibration mean is under the percentile still stay hot for every run step. Coordinates whose instantaneous residual stays under the threshold stay cold for the whole run.
 
-Average precision scores the ranking of that calibration residual, highest first. It is 1.0 when every masked coordinate outranks every agreeing one, which can happen while the percentile gate releases only the hotter part of the mask. In the seed 42–47 sweep from `python register.py` on the tested NumPy, every release run with `J > 0` has precision 1 and average precision 1, and recall lies between 0.50 and 0.59.
+On these seeds, at every `J` from 0.1 to 2.0, that hot set is fixed for all 400 run steps. A coordinate above the threshold stays above it on every step, and a coordinate below it never crosses. Recall is therefore the same at every persistence from 1 to 400. `PERSISTENCE = 50` is inside that range and does not change the released set. The ceiling is the percentile alone.
+
+Sweeping the percentile on the same 6 seeds and the same 20 values of `J` (120 runs; persistence, `dt`, and the step counts left at their defaults) moves mean recall as follows. Every run has 0 false releases and average precision 1. The denominator 3840 is 120 runs times 32 masked coordinates.
+
+| Percentile | Mean recall |
+| --- | --- |
+| 25 | 1 (3840/3840) |
+| 50 | 1 (3840/3840) |
+| 60 | 0.825 (3167/3840) |
+| 75 | 0.539 (2069/3840) |
+| 90 | 0.259 (993/3840) |
+
+At the default 75th percentile, recall on an individual run lies between 0.50 and 0.59.
 
 ## Precision, recall, and average precision
 
@@ -72,6 +84,10 @@ A hit is a released coordinate that lies on the hidden mask. `false_releases` is
 - **Precision** is `hits / n_released` when anything was released. Precision is 1 when the released set is empty (no false releases yet).
 - **Recall** is `hits / n_mask` when the mask is non-empty, and 0 when the mask is empty.
 - **Average precision** ranks the calibration-time mean residual against the hidden mask. It is 1 when every disagreeing coordinate outranks every agreeing one. It is 0 when the mask is empty, because there is nothing to rank. Equal scores keep their original index order (`argsort` with `mergesort`). At `J = 0` every residual is zero, so the seed-42 value is that tie-break among zeros.
+
+For `J > 0`, zero false releases and average precision 1 follow from the residual. Agreeing coordinates start at the same value and share a target, so the two copies stay equal. Their midpoint pull is 0, and their coupling residual is exactly 0 on every step. A release requires a residual strictly above the threshold by `RESIDUAL_FLOOR`, and the threshold is a percentile of nonnegative values, so an agreeing coordinate stays unreleased. Masked calibration residuals are positive while the coupling term is on, and each of them outranks every agreeing coordinate.
+
+The `J = 0` line and the memory null skip the coupling term, so the residual is 0 on the mask as well and the rule releases nothing.
 
 ## Install
 
