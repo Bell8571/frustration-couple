@@ -120,3 +120,26 @@ The header restates the setup (`n=64`, `n_diff=32`, `dt`, calibration length, ru
 - **extra release seeds.** Seeds 43–47, each run at the first positive `J` on the seed-42 release curve that released at least one coordinate, and at `J = 1` and `J = 2`. Fields are `released`, `false`, `recall`, and `AP`.
 
 `results/register_scan.csv` is the same runs as a table. Columns: `seed`, `mode`, `align_j`, `n_released`, `n_mask`, `false_releases`, `precision`, `recall`, `average_precision`, `threshold`, `residual_d`, `residual_agree`, `disagree_d`, `disagree_agree`, `loss_d`, `loss_agree`, `still_coupled`.
+
+## License
+
+This project is released under the MIT License. See [LICENSE](LICENSE).
+
+## How to cite
+
+Anyone using this code or its results is asked to cite this work. If you use this software or its results, please cite it as below.
+
+```bibtex
+@software{Bell2026frustration-couple,
+  author       = {Bell, Jason},
+  organization = {Bell Corporate Labs LLC},
+  title        = {frustration-couple},
+  year         = {2026},
+  date         = {2026-11-26},
+  version      = {0.1.0},
+  license      = {MIT},
+  url          = {https://github.com/Bell8571/frustration-couple}
+}
+```
+
+The same metadata is in [CITATION.cff](CITATION.cff). Jason Bell is affiliated with Bell Corporate Labs LLC.

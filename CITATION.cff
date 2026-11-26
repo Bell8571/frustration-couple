@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite it as below."
+title: frustration-couple
+authors:
+  - family-names: Bell
+    given-names: Jason
+    affiliation: Bell Corporate Labs LLC
+license: MIT
+repository-code: "https://github.com/Bell8571/frustration-couple"
+type: software
+date-released: "2026-11-26"
+version: "0.1.0"
