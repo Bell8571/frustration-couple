@@ -11,7 +11,6 @@ they keep negotiating and pay internal loss on the mask.
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import numpy as np
